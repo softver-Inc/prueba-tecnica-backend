@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm"
 import { Nota } from './Nota'
 
 @Entity()
@@ -15,7 +15,6 @@ export class User {
     @Column()
     password: string;
 
-    @OneToOne(() => Nota, (nota) => nota.user)
-    @JoinColumn()
-    nota: Nota
+    @OneToMany(() => Nota, (nota) => nota.user)
+    notes: Nota[]
 }

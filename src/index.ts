@@ -14,8 +14,7 @@ AppDataSource.initialize().then(async () => {
     app.use(bodyParser.json())
     app.use(cors(corsOptions))
     app.use("/api", index);
-    
     app.listen(3800)
-    console.log("Express server has started on port 3000. Open http://localhost:3800/users to see results")
+    console.log("Express server has started on port 3000. Open http://localhost:3800 to see results")
 
 }).catch(error => console.log(error))

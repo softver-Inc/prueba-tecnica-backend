@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm"
 import { User } from "./User"
 
 @Entity()
@@ -12,7 +12,7 @@ export class Nota {
     @Column()
     content: string; 
 
-    @OneToOne(() => User, (user) => user.nota)
+    @ManyToOne(() => User, (user) => user.notes)
     @JoinColumn()
     user: User
 }   

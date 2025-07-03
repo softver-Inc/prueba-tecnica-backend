@@ -21,7 +21,7 @@ index.post("/register", async (req: Request, res: Response) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const userRepository = AppDataSource.getTreeRepository(User);
+    const userRepository = AppDataSource.getRepository(User);
     const existingUser = await userRepository.findOneBy({ email });
 
     if (existingUser) {
@@ -54,7 +54,7 @@ index.post("/login", async (req: Request, res: Response) => {
         .json({ message: "Email and password are required" });
     }
 
-    const userRepository = AppDataSource.getTreeRepository(User);
+    const userRepository = AppDataSource.getRepository(User);
     const user = await userRepository.findOneBy({ email });
 
     if (!user) {
@@ -64,10 +64,15 @@ index.post("/login", async (req: Request, res: Response) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid email or password" });
-    }
+    }  
 
     const token = jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: "1h" });
-    res.json({ token });
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+    
+    res.json({ 
+      token,
+      expiresAt: expiresAt.toISOString()
+    });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -77,7 +82,7 @@ index.post("/login", async (req: Request, res: Response) => {
 index.get("/profile", verifyToken, async (req: Request, res: Response) => {
   try {
     const userId = req.body.userId;
-    const userRepository = AppDataSource.getTreeRepository(User);
+    const userRepository = AppDataSource.getRepository(User);
     const user = await userRepository.findOneBy({ id: userId });
 
     if (!user) {
@@ -95,7 +100,7 @@ index.get("/profile", verifyToken, async (req: Request, res: Response) => {
   }
 });
 
-index.post("/notas", verifyToken, async (req: Request, res: Response) => {
+index.post("/nota", verifyToken, async (req: Request, res: Response) => {
   try {
     const { title, content } = req.body;
 
@@ -104,14 +109,14 @@ index.post("/notas", verifyToken, async (req: Request, res: Response) => {
     }
 
     const userId = req.body.userId;
-    const userRepository = AppDataSource.getTreeRepository(User);
+    const userRepository = AppDataSource.getRepository(User);
     const user = await userRepository.findOneBy({ id: userId });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const notaRepository = AppDataSource.getTreeRepository(Nota);
+    const notaRepository = AppDataSource.getRepository(Nota);
     const newNota = notaRepository.create({
       title,
       content,
@@ -129,13 +134,17 @@ index.post("/notas", verifyToken, async (req: Request, res: Response) => {
 index.get("/notas", verifyToken, async (req: Request, res: Response) => {
   try {
     const userId = req.body.userId;
-    const userRepository = AppDataSource.getTreeRepository(User);
-    const nota = await userRepository.find({ where: { id: userId }, relations: ["notes"] });
+    const notaRepository = AppDataSource.getRepository(Nota);
+    const notas = await notaRepository.find({ 
+      where: { user: { id: userId } },
+      relations: ["user"]
+    });
 
-    if (nota.length === 0) {
+    if (notas.length === 0) {
       return res.status(404).json({ message: "No notes found" });
     }
-    res.json(nota);
+    
+    res.json(notas);
   } catch (error) {
     console.error("Note retrieval error:", error);
     res.status(500).json({ message: "Internal server error" });

@@ -18,6 +18,6 @@ export const verifyToken = (req: Request, res: Response, next: Function) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
     req.body.userId = decoded.id;
+    next();
   });
-  next();
 };
