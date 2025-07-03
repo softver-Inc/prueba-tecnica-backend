@@ -150,3 +150,26 @@ index.get("/notas", verifyToken, async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+index.delete("/nota/:id", verifyToken, async (req: Request, res: Response) => {
+  try {
+    const notaId = parseInt(req.params.id, 10);
+    const userId = req.body.userId;
+
+    const notaRepository = AppDataSource.getRepository(Nota);
+    const nota = await notaRepository.findOne({
+      where: { id: notaId, user: { id: userId } },
+      relations: ["user"]
+    });
+
+    if (!nota) {
+      return res.status(404).json({ message: "Note not found" });
+    }
+
+    await notaRepository.remove(nota);
+    res.json({ message: "Note deleted successfully" });
+  } catch (error) {
+    console.error("Note deletion error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
