@@ -9,7 +9,7 @@ AppDataSource.initialize().then(async () => {
 
     const app = express()
     const corsOptions = {
-      origin: ["http://localhost:3000", "http://localhost:3800"],
+      origin: ["http://localhost:3000", "http://localhost:3800", "https://prueba-tecnica-frontend-lake.vercel.app"],
       credentials: true,
     };
     
