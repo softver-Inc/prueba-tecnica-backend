@@ -31,6 +31,9 @@ AppDataSource.initialize().then(async () => {
     app.use(cors(corsOptions))
 
     app.use("/api", index);
+    app.get("/", (req: Request, res: Response) => {
+        res.send("Welcome to the API. Use /api/notas to manage notes.");
+    });
     app.listen(process.env.PORT || 3800)
     console.log("Express server has started on port 3000. Open http://localhost:3800 to see results")
 
